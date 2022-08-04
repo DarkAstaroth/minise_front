@@ -1,24 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
+import "./assets/css/bootstrap.css";
+import "./assets/css/bootstrap-extend.css";
+import "./assets/css/master_style.css";
+import "./assets/css/skins/_all-skins.css";
+import { Layout } from "./components/Layout/Layout";
+import { AppRouter } from "./router/AppRouter";
+import UsuarioState from "./context/usuarios/usuarioState";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <UsuarioState>
+        <AppRouter />
+      </UsuarioState>
+    </>
   );
 }
 
