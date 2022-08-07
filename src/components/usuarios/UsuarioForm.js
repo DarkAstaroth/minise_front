@@ -7,43 +7,36 @@ import usuarioContext from "../../context/usuarios/usuarioContext";
 import { useDispatch, useSelector } from "react-redux";
 import {
   crearNuevoUsuarioAction,
+  obtenerUsuarioEditar,
   obtenerUsuariosAction,
 } from "../actions/userActions";
 
 const UsuarioForm = (props) => {
   const dispatch = useDispatch();
-
   const history = useNavigate();
 
   const routeParams = useParams();
   const { userId } = routeParams;
 
   const usuarioeditar = useSelector((state) => state.usuarios.usuarioeditar);
-  let initialValues = {};
-  useEffect(() => {
-    if (userId === "new") {
-      initialValues = {
-        displayName: "",
-        email: "",
-        password: "",
-        confirmpassword: "",
-        role: "",
-        photoUrl: "",
-      };
-    } else {
-      initialValues = {
-        displayName: usuarioeditar[0].data.displayName,
-        email: "",
-        password: "",
-        confirmpassword: "",
-        role: "",
-        photoUrl: "",
-      };
-    }
-  }, []);
+
+  let initialValues;
+  if (userId == "new") {
+    initialValues = {};
+  } else {
+    initialValues = {
+      displayName: usuarioeditar[0].data.displayName,
+      email: usuarioeditar[0].data.email,
+      password: "",
+      confirmpassword: "",
+      role: "",
+      photoUrl: "",
+    };
+  }
 
   const formik = useFormik({
     initialValues,
+    enableReinitialize: true,
     validationSchema: Yup.object({
       displayName: Yup.string().required("El nombre de usuario es requerido"),
       email: Yup.string()
@@ -171,9 +164,15 @@ const UsuarioForm = (props) => {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                       >
-                        <option selected disabled hidden>
-                          Elija una opción
-                        </option>
+                        {userId == "new" ? (
+                          <option selected disabled hidden>
+                            Elija una opción
+                          </option>
+                        ) : (
+                          <option selected disabled hidden>
+                            Elija una opción
+                          </option>
+                        )}
                         <option value="admin">Administrador</option>
                         <option value="staff">Empleado</option>
                         <option value="seller">Vendedor</option>

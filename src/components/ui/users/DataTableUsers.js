@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   borrarUsuarioAction,
-  obtenerProductoEditar,
+  obtenerUsuarioEditar,
   obtenerUsuariosAction,
 } from "../../actions/userActions";
 
@@ -26,8 +26,8 @@ const DataTableUsers = ({ campos }) => {
 
   const handleRedirect = (id) => {
     //dispatch y redireccionar
-    dispatch(obtenerProductoEditar(id));
-    history(`/usuarios/${id}}`);
+    dispatch(obtenerUsuarioEditar(id));
+    history(`/usuarios/${id}`);
   };
 
   // const usuariosContext = useContext(usuarioContext);

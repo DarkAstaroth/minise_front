@@ -84,8 +84,9 @@ const agregarUsuarioError = (estado) => ({
   payload: estado,
 });
 
-export function obtenerProductoEditar(id) {
+export function obtenerUsuarioEditar(id) {
   return (dispatch) => {
+    
     dispatch(obtenerUsuarioEditarAction(id));
   };
 }
