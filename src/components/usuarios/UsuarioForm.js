@@ -1,42 +1,49 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Layout } from "../Layout/Layout";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import usuarioContext from "../../context/usuarios/usuarioContext";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  crearNuevoUsuarioAction,
+  obtenerUsuariosAction,
+} from "../actions/userActions";
 
 const UsuarioForm = (props) => {
-  const usuariosContext = useContext(usuarioContext);
-  const { usuarios, usuario, obtenerUsuario, crearUsuario, obtenerUsuarios } =
-    usuariosContext;
+  const dispatch = useDispatch();
 
-  const [displayName, setDisplayName] = useState("");
-  const [load, setLoad] = useState(true)
+  const history = useNavigate();
 
   const routeParams = useParams();
   const { userId } = routeParams;
 
+  const usuarioeditar = useSelector((state) => state.usuarios.usuarioeditar);
+  let initialValues = {};
   useEffect(() => {
-    setLoad(true);
-    if (load) {
-      if (userId !== "new") {
-        obtenerUsuario(userId);
-        setDisplayName(usuario.data.displayName);
-        console.log(displayName);
-        setLoad(false);
-      }
+    if (userId === "new") {
+      initialValues = {
+        displayName: "",
+        email: "",
+        password: "",
+        confirmpassword: "",
+        role: "",
+        photoUrl: "",
+      };
+    } else {
+      initialValues = {
+        displayName: usuarioeditar[0].data.displayName,
+        email: "",
+        password: "",
+        confirmpassword: "",
+        role: "",
+        photoUrl: "",
+      };
     }
   }, []);
 
   const formik = useFormik({
-    initialValues: {
-      displayName,
-      email: "",
-      password: "",
-      confirmpassword: "",
-      role: "",
-      photoUrl: "",
-    },
+    initialValues,
     validationSchema: Yup.object({
       displayName: Yup.string().required("El nombre de usuario es requerido"),
       email: Yup.string()
@@ -44,13 +51,17 @@ const UsuarioForm = (props) => {
         .email("Ingresa un email valido"),
       role: Yup.string().required("El rol es requerido"),
       password: Yup.string().required("El password no puede ir vacio"),
-      confirmpassword: Yup.string().oneOf(
-        [Yup.ref("password"), null],
-        "Las contraseñas deben ser iguales"
-      ),
+      confirmpassword: Yup.string()
+        .required("La confirmacion de contraseña es requerida")
+        .oneOf(
+          [Yup.ref("password"), null],
+          "Las contraseñas deben ser iguales"
+        ),
     }),
     onSubmit: (valores) => {
-      crearUsuario(valores);
+      dispatch(crearNuevoUsuarioAction(valores));
+      dispatch(obtenerUsuariosAction());
+      history("/usuarios");
     },
   });
 

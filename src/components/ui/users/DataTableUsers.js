@@ -1,46 +1,72 @@
 import React, { useContext, useEffect, useState } from "react";
 import usuarioContext from "../../../context/usuarios/usuarioContext";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  borrarUsuarioAction,
+  obtenerProductoEditar,
+  obtenerUsuariosAction,
+} from "../../actions/userActions";
 
 const DataTableUsers = ({ campos }) => {
-  const usuariosContext = useContext(usuarioContext);
-  const { usuarios, obtenerUsuarios, eliminarUsuario } = usuariosContext;
+  const dispatch = useDispatch();
+  const history = useNavigate();
 
-  const [dataTable, setDataTable] = useState([]);
+  // Obtener el state
+  const usuarios = useSelector((state) => state.usuarios.usuarios);
+  const error = useSelector((state) => state.usuarios.error);
+  const loading = useSelector((state) => state.usuarios.loading);
 
   useEffect(() => {
-    const loadData = async () => {
-      await obtenerUsuarios();
-      console.log('cargando')
-    };
-    loadData();
+    const cargarUsuarios = () => dispatch(obtenerUsuariosAction());
+    cargarUsuarios();
+    // eslint-disable-next-line
   }, []);
 
-  if (!usuarios || !dataTable) return <p>Cargando...</p>;
-
-  const handleChange = (e) => {
-    const params = e.target.value;
-    if (params !== "") {
-      const resultado = dataTable.filter((item) => {
-        if (
-          item.data.displayName
-            .toString()
-            .toLowerCase()
-            .includes(params.toLowerCase()) ||
-          item.data.email
-            .toString()
-            .toLowerCase()
-            .includes(params.toLowerCase())
-        ) {
-          return item;
-        }
-      });
-      setDataTable(resultado);
-    } else {
-      setDataTable(usuarios);
-    }
+  const handleRedirect = (id) => {
+    //dispatch y redireccionar
+    dispatch(obtenerProductoEditar(id));
+    history(`/usuarios/${id}}`);
   };
+
+  // const usuariosContext = useContext(usuarioContext);
+  // const { usuarios, obtenerUsuarios, eliminarUsuario } = usuariosContext;
+
+  // const [dataTable, setDataTable] = useState([]);
+
+  // useEffect(() => {
+  //   // const loadData = async () => {
+  //   //   await obtenerUsuarios();
+  //   //   console.log("cargando");
+  //   // };
+  //   // loadData();
+  // }, []);
+
+  // if (!usuarios || !dataTable) return <p>Cargando...</p>;
+
+  // const handleChange = (e) => {
+  //   const params = e.target.value;
+  //   if (params !== "") {
+  //     const resultado = dataTable.filter((item) => {
+  //       if (
+  //         item.data.displayName
+  //           .toString()
+  //           .toLowerCase()
+  //           .includes(params.toLowerCase()) ||
+  //         item.data.email
+  //           .toString()
+  //           .toLowerCase()
+  //           .includes(params.toLowerCase())
+  //       ) {
+  //         return item;
+  //       }
+  //     });
+  //     setDataTable(resultado);
+  //   } else {
+  //     setDataTable(usuarios);
+  //   }
+  // };
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -54,8 +80,7 @@ const DataTableUsers = ({ campos }) => {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        eliminarUsuario(id);
-        Swal.fire("Eliminado!", "El usuario ha sido eliminado.", "success");
+        dispatch(borrarUsuarioAction(id));
       }
     });
   };
@@ -73,7 +98,7 @@ const DataTableUsers = ({ campos }) => {
                   className="form-control"
                   name="params"
                   placeholder="Nombre, Email"
-                  onChange={handleChange}
+                  // onChange={handleChange}
                 />
               </div>
             </div>
@@ -88,8 +113,8 @@ const DataTableUsers = ({ campos }) => {
                 </thead>
 
                 <tbody>
-                  {dataTable.length != 0 ? (
-                    dataTable.map((item) => (
+                  {usuarios.length != 0 ? (
+                    usuarios.map((item) => (
                       <tr key={item.id}>
                         <td>{item.data.displayName}</td>
                         <td>{item.data.email}</td>
@@ -98,12 +123,12 @@ const DataTableUsers = ({ campos }) => {
                           <span className="badge badge-success">Activo</span>
                         </td>
                         <td>
-                          <Link to={`/usuarios/${item.id}`}>
-                            <button className="btn btn-info btn-xs">
-                              <i className="fa fa-pencil"> </i> Editar
-                            </button>{" "}
-                          </Link>
-
+                          <button
+                            className="btn btn-info btn-xs"
+                            onClick={() => handleRedirect(item.id)}
+                          >
+                            <i className="fa fa-pencil"> </i> Editar
+                          </button>{" "}
                           <button
                             className="btn btn-danger btn-xs"
                             onClick={() => handleDelete(item.id)}

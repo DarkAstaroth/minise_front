@@ -1,28 +1,73 @@
 import {
   AGREGAR_USUARIO,
-  ELIMINAR_USUARIO,
-  OBTENER_USUARIOS,
-  USUARIO_ACTUAL,
+  AGREGAR_USUARIO_ERROR,
+  AGREGAR_USUARIO_EXITO,
+  COMENZAR_DESCARGA_USUARIOS,
+  DESCARGA_USUARIOS_ERROR,
+  DESCARGA_USUARIOS_EXITOSA,
+  OBTENER_USUARIO_EDITAR,
+  OBTENER_USUARIO_ELIMINAR,
+  USUARIO_ELIMINADO_ERROR,
+  USUARIO_ELIMINADO_EXITO,
 } from "../types";
 
-// cada reducer tiene su propio state
-// const initialState = {
-//   productos: [],
-//   error: null,
-//   loading: false,
-//   productoeliminar: null,
-//   productoeditar: null,
-// };
-
-
 const initialState = {
-    usuarios: [],
-    errorUsuario: false,
-    usuario: null,
-  };
+  usuarios: [],
+  error: null,
+  loading: false,
+  usuarioeliminar: null,
+  usuarioeditar: null,
+};
 
 export default function (state = initialState, action) {
   switch (action.type) {
+    case COMENZAR_DESCARGA_USUARIOS:
+    case AGREGAR_USUARIO:
+      return {
+        ...state,
+        loading: action.payload,
+      };
+    case AGREGAR_USUARIO_EXITO:
+      return {
+        ...state,
+        loading: false,
+        usuarios: [...state.usuarios, action.payload],
+      };
+    case DESCARGA_USUARIOS_EXITOSA:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        usuarios: action.payload,
+      };
+    case OBTENER_USUARIO_EDITAR:
+      return {
+        ...state,
+        usuarioeditar: state.usuarios.filter(
+          (usuario) => usuario.id == action.payload
+        ),
+      };
+    case AGREGAR_USUARIO_ERROR:
+    case DESCARGA_USUARIOS_ERROR:
+    case USUARIO_ELIMINADO_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case OBTENER_USUARIO_ELIMINAR:
+      return {
+        ...state,
+        usuarioeliminar: action.payload,
+      };
+    case USUARIO_ELIMINADO_EXITO:
+      return {
+        ...state,
+        usuarios: state.usuarios.filter(
+          (usuario) => usuario.id !== state.usuarioeliminar
+        ),
+        usuarioeliminar: null,
+      };
     default:
       return state;
   }
