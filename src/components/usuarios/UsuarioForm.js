@@ -1,7 +1,9 @@
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Controller, useForm } from "react-hook-form";
+import _ from "../../@lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Layout } from "../Layout/Layout";
-import { useFormik } from "formik";
 import * as Yup from "yup";
 import usuarioContext from "../../context/usuarios/usuarioContext";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,43 +22,32 @@ const UsuarioForm = (props) => {
 
   const usuarioeditar = useSelector((state) => state.usuarios.usuarioeditar);
 
-  let initialValues;
-  if (userId == "new") {
-    initialValues = {};
-  } else {
-    initialValues = {
-      displayName: usuarioeditar[0].data.displayName,
-      email: usuarioeditar[0].data.email,
-      password: "",
-      confirmpassword: "",
-      role: "",
-      photoUrl: "",
-    };
-  }
-
-  const formik = useFormik({
-    initialValues,
-    enableReinitialize: true,
-    validationSchema: Yup.object({
-      displayName: Yup.string().required("El nombre de usuario es requerido"),
-      email: Yup.string()
-        .required("El email es requerido")
-        .email("Ingresa un email valido"),
-      role: Yup.string().required("El rol es requerido"),
-      password: Yup.string().required("El password no puede ir vacio"),
-      confirmpassword: Yup.string()
-        .required("La confirmacion de contraseña es requerida")
-        .oneOf(
-          [Yup.ref("password"), null],
-          "Las contraseñas deben ser iguales"
-        ),
-    }),
-    onSubmit: (valores) => {
-      dispatch(crearNuevoUsuarioAction(valores));
-      dispatch(obtenerUsuariosAction());
-      history("/usuarios");
-    },
+  const schema = Yup.object({
+    displayName: Yup.string().required("El nombre de usuario es requerido"),
+    email: Yup.string()
+      .required("El email es requerido")
+      .email("Ingresa un email valido"),
+    role: Yup.string().required("El rol es requerido"),
+    password: Yup.string().required("El password no puede ir vacio"),
+    confirmpassword: Yup.string()
+      .required("La confirmacion de contraseña es requerida")
+      .oneOf([Yup.ref("password"), null], "Las contraseñas deben ser iguales"),
   });
+
+  const defaultValues = {
+    displayName: "",
+    email: "",
+    role: "",
+    password: "",
+  };
+
+  const { control, formState, handleSubmit, setError, setValue } = useForm({
+    mode: "onChange",
+    defaultValues,
+    resolver: yupResolver(schema),
+  });
+
+  const { isValid, dirtyFields, errors } = formState;
 
   return (
     <Layout>
@@ -73,49 +64,113 @@ const UsuarioForm = (props) => {
             <div className="col-xl-6 col-lg-12">
               <div className="box">
                 <div className="box-body">
-                  <form onSubmit={formik.handleSubmit}>
+                  <form
+                    name="usuarioForm"
+                    // onSubmit={formik.handleSubmit}
+                  >
                     <div className="form-group">
-                      <label htmlFor="displayName">Nombre de usuario</label>
-                      <input
+                      <label htmlFor="displayName">Nombre de Usuario</label>
+                      <Controller
                         name="displayName"
-                        id="displayName"
-                        type="text"
-                        className="form-control"
-                        placeholder="Ingrese un nombre de usuario"
-                        value={formik.values.displayName}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="text"
+                            className="form-control"
+                            placeholder="Ingrese nombre de usuario"
+                          />
+                        )}
                       />
-                      {formik.touched.displayName &&
-                      formik.errors.displayName ? (
+                      {errors.displayName ? (
                         <div>
                           <span className="help-block text-danger m-5">
-                            {formik.errors.displayName}
+                            {errors.displayName.message}
                           </span>
                         </div>
-                      ) : null}
+                      ) : (
+                        null
+                      )}
                     </div>
 
                     <div className="form-group">
                       <label htmlFor="email">Email</label>
-                      <input
+                      <Controller
                         name="email"
-                        id="email"
-                        type="email"
-                        className="form-control"
-                        placeholder="Ingrese un email de usuario"
-                        value={formik.values.email}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="email"
+                            className="form-control"
+                            placeholder="Ingrese un email de usuario"
+                          />
+                        )}
                       />
-                      {formik.touched.email && formik.errors.email ? (
-                        <span className="help-block text-danger m-5">
-                          {formik.errors.email}
-                        </span>
-                      ) : null}
+                      {errors.email ? (
+                        <div>
+                          <span className="help-block text-danger m-5">
+                            {errors.email.message}
+                          </span>
+                        </div>
+                      ) : (
+                        null
+                      )}
                     </div>
 
                     <div className="form-group">
+                      <label htmlFor="password">Contraseña</label>
+                      <Controller
+                        name="password"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="password"
+                            className="form-control"
+                            placeholder="Ingrese una contraseña"
+                          />
+                        )}
+                      />
+                      {errors.password ? (
+                        <div>
+                          <span className="help-block text-danger m-5">
+                            {errors.password.message}
+                          </span>
+                        </div>
+                      ) : (
+                        null
+                      )}
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="confirmpassword">
+                        Confirmar Contraseña
+                      </label>
+                      <Controller
+                        name="confirmpassword"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="password"
+                            className="form-control"
+                            placeholder="Confirme la contraseña"
+                          />
+                        )}
+                      />
+                      {errors.confirmpassword ? (
+                        <div>
+                          <span className="help-block text-danger m-5">
+                            {errors.confirmpassword.message}
+                          </span>
+                        </div>
+                      ) : (
+                        null
+                      )}
+                    </div>
+
+                    {/* <div className="form-group">
                       <label htmlFor="password">Contraseña</label>
                       <input
                         name="password"
@@ -132,9 +187,9 @@ const UsuarioForm = (props) => {
                           {formik.errors.password}
                         </span>
                       ) : null}
-                    </div>
+                    </div> */}
 
-                    <div className="form-group">
+                    {/* <div className="form-group">
                       <label htmlFor="confirmpassword">Repita contraseña</label>
                       <input
                         name="confirmpassword"
@@ -152,9 +207,9 @@ const UsuarioForm = (props) => {
                           {formik.errors.confirmpassword}
                         </span>
                       ) : null}
-                    </div>
+                    </div> */}
 
-                    <div className="form-group">
+                    {/* <div className="form-group">
                       <label htmlFor="role">Rol</label>
                       <select
                         name="role"
@@ -163,16 +218,11 @@ const UsuarioForm = (props) => {
                         value={formik.values.role}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
+                        defaultValue={"DEFAULT"}
                       >
-                        {userId == "new" ? (
-                          <option selected disabled hidden>
-                            Elija una opción
-                          </option>
-                        ) : (
-                          <option selected disabled hidden>
-                            Elija una opción
-                          </option>
-                        )}
+                        <option value="DEFAULT" disabled>
+                          Elije una opcion
+                        </option>
                         <option value="admin">Administrador</option>
                         <option value="staff">Empleado</option>
                         <option value="seller">Vendedor</option>
@@ -184,12 +234,12 @@ const UsuarioForm = (props) => {
                           </span>{" "}
                         </div>
                       ) : null}
-                    </div>
+                    </div> */}
 
                     <button
                       type="submit"
                       className="btn btn-primary"
-                      disabled={!(formik.isValid && formik.dirty)}
+                      disabled={_.isEmpty(dirtyFields) || !isValid}
                     >
                       {userId == "new" ? (
                         <span>Guardar</span>
