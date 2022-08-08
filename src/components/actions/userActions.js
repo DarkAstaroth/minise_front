@@ -5,10 +5,13 @@ import {
   AGREGAR_USUARIO_ERROR,
   AGREGAR_USUARIO_EXITO,
   COMENZAR_DESCARGA_USUARIOS,
+  COMENZAR_EDICION_USUARIO,
   DESCARGA_USUARIOS_ERROR,
   DESCARGA_USUARIOS_EXITOSA,
   OBTENER_USUARIO_EDITAR,
   OBTENER_USUARIO_ELIMINAR,
+  USUARIO_EDITADO_ERROR,
+  USUARIO_EDITADO_EXITO,
   USUARIO_ELIMINADO_ERROR,
   USUARIO_ELIMINADO_EXITO,
 } from "../../types";
@@ -46,7 +49,10 @@ export function crearNuevoUsuarioAction(usuario) {
     try {
       const data = {
         password: usuario.password,
-        role: usuario.role,
+        role: {
+          value: usuario.role.value,
+          label: usuario.role.label,
+        },
         data: {
           displayName: usuario.displayName,
           email: usuario.email,
@@ -61,7 +67,7 @@ export function crearNuevoUsuarioAction(usuario) {
       Swal.fire({
         icon: "error",
         title: "Hubo un error",
-        text: "Hubo un error, intenta de nuevo",
+        text: `${error.response.data.msg}`,
       });
     }
   };
@@ -72,7 +78,7 @@ const agregarUsuario = () => ({
   payload: true,
 });
 
-// si el producto se guarda en la base de datos
+// si el usuario se guarda en la base de datos
 const agregarUsuarioExito = (usuario) => ({
   type: AGREGAR_USUARIO_EXITO,
   payload: usuario,
@@ -84,9 +90,10 @@ const agregarUsuarioError = (estado) => ({
   payload: estado,
 });
 
+////////////////////// EDITAR
+
 export function obtenerUsuarioEditar(id) {
   return (dispatch) => {
-    
     dispatch(obtenerUsuarioEditarAction(id));
   };
 }
@@ -95,6 +102,51 @@ const obtenerUsuarioEditarAction = (userId) => ({
   type: OBTENER_USUARIO_EDITAR,
   payload: userId,
 });
+
+export function editarUsuarioAction(usuario) {
+  return async (dispatch) => {
+    // dispatch(editarUsuario());
+    const data = {
+      role: {
+        value: usuario.role.value,
+        label: usuario.role.label,
+      },
+      data: {
+        displayName: usuario.displayName,
+        email: usuario.email,
+        photoUrl: "string",
+      },
+    };
+
+    try {
+      await clienteAxios.put(`/api/user/${usuario.id}`, data);
+      // dispatch(editarUsuarioExito(usuario));
+      Swal.fire("Correcto", "El usuario se modifico correctamente", "success");
+    } catch (error) {
+      console.log(error);
+      dispatch(editarUsuarioError());
+      Swal.fire({
+        icon: "error",
+        title: "Hubo un error",
+        text: `${error.response.data.msg}`,
+      });
+    }
+  };
+}
+
+// const editarUsuario = () => ({
+//   type: COMENZAR_EDICION_USUARIO,
+// });
+const editarUsuarioExito = (usuario) => ({
+  type: USUARIO_EDITADO_EXITO,
+  payload: usuario,
+});
+const editarUsuarioError = () => ({
+  type: USUARIO_EDITADO_ERROR,
+  payload: true,
+});
+
+/////////////////////ELIMINAR
 
 export function borrarUsuarioAction(id) {
   return async (dispatch) => {

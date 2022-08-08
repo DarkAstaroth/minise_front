@@ -113,12 +113,12 @@ const DataTableUsers = ({ campos }) => {
                 </thead>
 
                 <tbody>
-                  {usuarios.length != 0 ? (
+                  {usuarios.lenght != 0 ? (
                     usuarios.map((item) => (
                       <tr key={item.id}>
                         <td>{item.data.displayName}</td>
                         <td>{item.data.email}</td>
-                        <td>{item.role}</td>
+                        <td>{item.role.label}</td>
                         <td>
                           <span className="badge badge-success">Activo</span>
                         </td>

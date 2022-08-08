@@ -7,6 +7,8 @@ import {
   DESCARGA_USUARIOS_EXITOSA,
   OBTENER_USUARIO_EDITAR,
   OBTENER_USUARIO_ELIMINAR,
+  USUARIO_EDITADO_ERROR,
+  USUARIO_EDITADO_EXITO,
   USUARIO_ELIMINADO_ERROR,
   USUARIO_ELIMINADO_EXITO,
 } from "../types";
@@ -39,6 +41,8 @@ export default function (state = initialState, action) {
         loading: false,
         error: null,
         usuarios: action.payload,
+        usuarioeditar: null,
+        usuarioeliminar: null,
       };
     case OBTENER_USUARIO_EDITAR:
       return {
@@ -47,13 +51,15 @@ export default function (state = initialState, action) {
           (usuario) => usuario.id == action.payload
         ),
       };
-    case AGREGAR_USUARIO_ERROR:
-    case DESCARGA_USUARIOS_ERROR:
-    case USUARIO_ELIMINADO_ERROR:
+    case USUARIO_EDITADO_EXITO:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        usuarioeditar: null,
+        usuarios: state.usuarios.map((usuario) =>
+          usuario.id === action.payload.id
+            ? (usuario = action.payload)
+            : usuario
+        ),
       };
     case OBTENER_USUARIO_ELIMINAR:
       return {
@@ -67,6 +73,15 @@ export default function (state = initialState, action) {
           (usuario) => usuario.id !== state.usuarioeliminar
         ),
         usuarioeliminar: null,
+      };
+    case AGREGAR_USUARIO_ERROR:
+    case DESCARGA_USUARIOS_ERROR:
+    case USUARIO_ELIMINADO_ERROR:
+    case USUARIO_EDITADO_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
       };
     default:
       return state;
