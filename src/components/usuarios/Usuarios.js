@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
-import usuarioContext from "../../context/usuarios/usuarioContext";
 import { Layout } from "../Layout/Layout";
 import DataTableUsers from "../ui/users/DataTableUsers";
 

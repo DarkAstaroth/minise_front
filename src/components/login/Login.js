@@ -1,9 +1,11 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
+import _ from "../../@lodash";
+import { iniciarSesion } from "../actions/authActions";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -29,25 +31,41 @@ const Login = () => {
 
   const { isValid, dirtyFields, errors } = formState;
 
+  function onSubmit(data) {
+    try {
+      dispatch(iniciarSesion(data));
+    } catch (error) {
+      console.log("error");
+    }
+  }
+
+  const autenticado = useSelector((state) => state.auth.autenticado);
+
+  useEffect(() => {
+    if (autenticado) {
+      history("/");
+    }
+  }, []);
+
   return (
     <div
-      class="container pt-3 vh-100"
+      className="container-fluid pt-3 vh-100"
       style={{
         background: `url(/assets/images/bg-2.jpg)`,
         backgroundSize: "cover",
       }}
     >
-      <div class="row h-p100 justify-content-sm-center align-items-center">
-        <div class="col-sm-6 col-md-4">
-          <div class="card border-info text-center">
-            <div class="card-header">Inicia Sesion para continuar</div>
-            <div class="card-body">
+      <div className="row h-p100 justify-content-sm-center align-items-center">
+        <div className="col-sm-6 col-md-7 col-lg-3">
+          <div className="card border-info text-center">
+            <div className="card-header">Inicia Sesion para continuar</div>
+            <div className="card-body">
               <img
                 src="/assets/images/logo-scallia-black.png"
-                class="img-fluid w-150 mb-10"
+                className="img-fluid w-150 mb-10"
               />
-              <h4 class="text-center mb-20">Bienvenido</h4>
-              <form class="form-signin">
+              <h4 className="text-center mb-20">Bienvenido</h4>
+              <form className="form-signin" onSubmit={handleSubmit(onSubmit)}>
                 <Controller
                   name="email"
                   control={control}
@@ -55,9 +73,9 @@ const Login = () => {
                     <input
                       {...field}
                       type="email"
-                      class="form-control mb-2"
+                      className="form-control mb-2"
                       placeholder="Email"
-                      autofocus
+                      autoFocus
                     />
                   )}
                 />
@@ -76,7 +94,7 @@ const Login = () => {
                     <input
                       {...field}
                       type="password"
-                      class="form-control mb-2"
+                      className="form-control mb-2"
                       placeholder="Contraseña"
                     />
                   )}
@@ -90,13 +108,14 @@ const Login = () => {
                 ) : null}
 
                 <button
-                  class="btn btn-lg btn-primary btn-block mb-20"
+                  className="btn btn-lg btn-primary btn-block mb-20"
                   type="submit"
+                  // disabled={_.isEmpty(dirtyFields) || !isValid}
                 >
                   Iniciar Sesion
                 </button>
 
-                <a href="#" class="float-right">
+                <a href="#" className="float-right">
                   Necesitas sesion?
                 </a>
               </form>

@@ -7,7 +7,7 @@ const Sidebar = () => {
       <section className="sidebar">
         <ul className="sidebar-menu" data-widget="tree">
           <li className="">
-            <Link to={'/login'}>
+            <Link to={'/'}>
               <i className="iconsmind-Dashboard"></i>
               <span>Dashboard</span>
               <span className="pull-right-container">

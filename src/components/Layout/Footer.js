@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="pull-right d-none d-sm-inline-block">
         <ul className="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
           <li className="nav-item">
-            <a className="nav-link" href="javascript:void(0)">
+            <a className="nav-link">
               FAQ
             </a>
           </li>
